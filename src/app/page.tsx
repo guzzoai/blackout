@@ -64,6 +64,7 @@ export default function Home() {
 
   const connectWS = useCallback((action: 'create' | 'join', code?: string) => {
     setConnError('');
+    setDisplayCode('');
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const wsUrl = `${protocol}://${window.location.host}`;
     console.log('[WS] Connecting to', wsUrl);
@@ -82,8 +83,12 @@ export default function Home() {
     };
 
     ws.onmessage = (event) => {
-      const msg: ServerMsg = JSON.parse(event.data);
-      handleServerMsg(msg);
+      const msg = JSON.parse(event.data);
+      console.log('[WS] Received:', msg);
+      if (msg.t === 'room') {
+        setDisplayCode(msg.code);
+      }
+      handleServerMsg(msg as ServerMsg);
     };
 
     ws.onerror = (e) => {
@@ -537,17 +542,22 @@ export default function Home() {
 
       {phase === 'waiting' && (
         <div className="flex flex-col items-center justify-center h-full gap-6">
-          <p className="text-sm text-neutral-500">Waiting for opponent...</p>
-          {displayCode && (
-            <div className="flex items-center gap-3">
-              <span className="text-3xl tracking-[0.5em] font-bold">{displayCode}</span>
-              <button
-                onClick={handleCopy}
-                className="text-xs text-neutral-500 hover:text-white border border-neutral-700 px-3 py-1"
-              >
-                {copied ? 'COPIED' : 'COPY'}
-              </button>
-            </div>
+          {displayCode ? (
+            <>
+              <p className="text-sm text-neutral-500">Share this code with your opponent:</p>
+              <div className="flex items-center gap-3">
+                <span className="text-4xl tracking-[0.5em] font-bold">{displayCode}</span>
+                <button
+                  onClick={handleCopy}
+                  className="text-xs text-neutral-500 hover:text-white border border-neutral-700 px-3 py-1"
+                >
+                  {copied ? 'COPIED' : 'COPY'}
+                </button>
+              </div>
+              <p className="text-sm text-neutral-500">Waiting for opponent to join...</p>
+            </>
+          ) : (
+            <p className="text-sm text-neutral-500">Connecting...</p>
           )}
         </div>
       )}
