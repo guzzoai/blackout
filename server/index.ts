@@ -358,14 +358,33 @@ app.prepare().then(() => {
   // Use noServer mode so Next.js doesn't swallow the upgrade event
   const wss = new WebSocketServer({ noServer: true });
   wss.on('connection', (ws) => {
-    ws.on('message', (data) => handleWsMessage(ws, data as Buffer));
-    ws.on('close', () => handleWsClose(ws));
+    console.log('[WSS] Client connected');
+    ws.on('message', (data) => {
+      console.log('[WSS] Message:', data.toString().substring(0, 100));
+      handleWsMessage(ws, data as Buffer);
+    });
+    ws.on('close', (code, reason) => {
+      console.log('[WSS] Client disconnected:', code, reason?.toString());
+      handleWsClose(ws);
+    });
+    ws.on('error', (err) => {
+      console.error('[WSS] Socket error:', err.message);
+    });
   });
 
+  // Only handle upgrade on /ws path to avoid conflicts with Next.js HMR
   server.on('upgrade', (req, socket, head) => {
-    wss.handleUpgrade(req, socket, head, (ws) => {
-      wss.emit('connection', ws, req);
+    const url = req.url || '';
+    console.log('[WSS] Upgrade request:', url);
+    socket.on('error', (err) => {
+      console.error('[WSS] Socket upgrade error:', err.message);
     });
+    if (url.startsWith('/ws')) {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit('connection', ws, req);
+      });
+    }
+    // Let Next.js handle other upgrades (like HMR)
   });
 
   server.listen(port, '0.0.0.0', () => {

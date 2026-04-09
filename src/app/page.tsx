@@ -66,7 +66,7 @@ export default function Home() {
     setConnError('');
     setDisplayCode('');
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsUrl = `${protocol}://${window.location.host}`;
+    const wsUrl = `${protocol}://${window.location.host}/ws`;
     console.log('[WS] Connecting to', wsUrl);
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
