@@ -1,10 +1,12 @@
-import { createServer } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { WebSocketServer, WebSocket } from 'ws';
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = parseInt(process.env.PORT || '3000', 10);
+
+console.log(`Starting in ${dev ? 'development' : 'production'} mode on port ${port}`);
 
 const app = next({ dev });
 const handle = app.getRequestHandler();

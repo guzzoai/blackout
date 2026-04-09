@@ -6,7 +6,7 @@
     "dev": "tsx server/index.ts",
     "dev:legacy": "concurrently \"next dev -H 0.0.0.0\" \"tsx server/ws.ts\"",
     "build": "next build",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "lint": "eslint"
   },
   "dependencies": {
