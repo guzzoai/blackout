@@ -355,10 +355,17 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  const wss = new WebSocketServer({ server });
+  // Use noServer mode so Next.js doesn't swallow the upgrade event
+  const wss = new WebSocketServer({ noServer: true });
   wss.on('connection', (ws) => {
     ws.on('message', (data) => handleWsMessage(ws, data as Buffer));
     ws.on('close', () => handleWsClose(ws));
+  });
+
+  server.on('upgrade', (req, socket, head) => {
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.emit('connection', ws, req);
+    });
   });
 
   server.listen(port, '0.0.0.0', () => {
