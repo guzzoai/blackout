@@ -119,6 +119,9 @@ export default function Home() {
         g.bullets = [];
         g.powerups = [];
         g.lightReveal = null;
+        g.killText = null;
+        g.hitFlash = 0;
+        g.muzzleFlash = 0;
         g.me = {
           x: msg.role === 0 ? maze.spawn1.x : maze.spawn2.x,
           y: msg.role === 0 ? maze.spawn1.y : maze.spawn2.y,
@@ -159,16 +162,8 @@ export default function Home() {
         g.scores = [msg.s1, msg.s2];
         const isVictim = msg.victim === g.role;
         g.killText = { text: isVictim ? 'DIED' : 'KILLED', alpha: 1 };
-        if (isVictim) {
-          const spawn = g.role === 0 ? g.maze!.spawn1 : g.maze!.spawn2;
-          g.me.x = spawn.x;
-          g.me.y = spawn.y;
-          g.me.hp = MAX_HP;
-          g.me.invulnUntil = Date.now() + RESPAWN_INVULN_MS;
-        } else {
-          g.opponent.hp = MAX_HP;
-        }
         g.bullets = [];
+        // Server will send 'newmap' shortly — don't respawn here
         break;
       }
       case 'win':
@@ -221,13 +216,18 @@ export default function Home() {
         g.role = msg.role;
         g.bullets = [];
         g.lightReveal = null;
-        g.me.x = msg.role === 0 ? newMaze.spawn1.x : newMaze.spawn2.x;
-        g.me.y = msg.role === 0 ? newMaze.spawn1.y : newMaze.spawn2.y;
-        g.me.hp = MAX_HP;
-        g.me.invulnUntil = Date.now() + RESPAWN_INVULN_MS;
-        g.opponent.x = msg.role === 0 ? newMaze.spawn2.x : newMaze.spawn1.x;
-        g.opponent.y = msg.role === 0 ? newMaze.spawn2.y : newMaze.spawn1.y;
-        g.opponent.hp = MAX_HP;
+        g.killText = null;
+        g.hitFlash = 0;
+        g.me = {
+          x: msg.role === 0 ? newMaze.spawn1.x : newMaze.spawn2.x,
+          y: msg.role === 0 ? newMaze.spawn1.y : newMaze.spawn2.y,
+          angle: 0, hp: MAX_HP, score: g.me.score, lastShot: 0, invulnUntil: Date.now() + RESPAWN_INVULN_MS,
+        };
+        g.opponent = {
+          x: msg.role === 0 ? newMaze.spawn2.x : newMaze.spawn1.x,
+          y: msg.role === 0 ? newMaze.spawn2.y : newMaze.spawn1.y,
+          angle: 0, hp: MAX_HP, score: g.opponent.score, lastShot: 0, invulnUntil: Date.now() + RESPAWN_INVULN_MS,
+        };
         break;
       }
     }

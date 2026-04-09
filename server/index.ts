@@ -208,7 +208,7 @@ function tickRoom(room: Room) {
           room.phase = 'over';
           if (room.tickInterval) clearInterval(room.tickInterval);
         } else {
-          setTimeout(() => regenerateMap(room), RESPAWN_INVULN_MS);
+          regenerateMap(room);
         }
         return false;
       } else {
