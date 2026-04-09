@@ -367,13 +367,14 @@ export default function Home() {
         }
       }
 
-      // Decay light reveal
+      // Decay light reveal — fade out over last 1.5s
       if (g.lightReveal) {
         const remaining = g.lightReveal.endTime - Date.now();
         if (remaining <= 0) {
           g.lightReveal = null;
         } else {
-          g.lightReveal.alpha = Math.min(1, remaining / 500); // fade out in last 500ms
+          const fadeWindow = 1500;
+          g.lightReveal.alpha = Math.min(1, remaining / fadeWindow);
         }
       }
 

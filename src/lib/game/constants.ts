@@ -9,7 +9,7 @@ export const WALL_REMOVE_RATIO = 0.15;
 // Player
 export const PLAYER_SPEED = 160;
 export const PLAYER_RADIUS = 8;
-export const MAX_HP = 2;
+export const MAX_HP = 5;
 export const RESPAWN_INVULN_MS = 1500;
 
 // Vision

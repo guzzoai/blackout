@@ -149,16 +149,22 @@ export function render(ctx: CanvasRenderingContext2D, state: RenderState) {
 
   // Draw bullets
   for (const b of state.bullets) {
-    const alpha = Math.max(0.2, 1 - b.age / (BULLET_TRAIL_FRAMES + 3));
+    const alpha = Math.max(0.3, 1 - b.age / (BULLET_TRAIL_FRAMES + 3));
+    // Outer glow
+    ctx.fillStyle = `rgba(255, 255, 200, ${alpha * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    // Core
     ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
     ctx.fill();
 
     if (b.age < BULLET_TRAIL_FRAMES) {
-      const trailLen = 12;
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 * (1 - b.age / BULLET_TRAIL_FRAMES)})`;
-      ctx.lineWidth = 2;
+      const trailLen = 18;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.5 * (1 - b.age / BULLET_TRAIL_FRAMES)})`;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(b.x, b.y);
       ctx.lineTo(b.x - b.dx * trailLen, b.y - b.dy * trailLen);
@@ -363,9 +369,9 @@ function drawHUD(ctx: CanvasRenderingContext2D, state: RenderState) {
   const hp = state.me.hp;
   ctx.textAlign = 'left';
   ctx.font = '14px "Geist Mono", monospace';
-  ctx.fillStyle = hp > 1 ? '#ffffff' : '#ff4444';
+  ctx.fillStyle = hp > 2 ? '#ffffff' : hp > 1 ? '#ffaa44' : '#ff4444';
   let hpText = 'HP ';
-  for (let i = 0; i < 2; i++) hpText += i < hp ? '\u25A0 ' : '\u25A1 ';
+  for (let i = 0; i < 5; i++) hpText += i < hp ? '\u25A0 ' : '\u25A1 ';
   ctx.fillText(hpText, 16, height - 30);
 
   // Kill text
