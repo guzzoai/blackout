@@ -24,6 +24,7 @@ export default function Home() {
   const [role, setRole] = useState(0);
   const [winner, setWinner] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
+  const [connError, setConnError] = useState('');
 
   const gameRef = useRef<{
     maze: MazeResult | null;
@@ -62,12 +63,15 @@ export default function Home() {
   });
 
   const connectWS = useCallback((action: 'create' | 'join', code?: string) => {
+    setConnError('');
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const wsUrl = `${protocol}://${window.location.host}`;
+    console.log('[WS] Connecting to', wsUrl);
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
+      console.log('[WS] Connected');
       if (action === 'create') {
         ws.send(JSON.stringify({ t: 'create' }));
         setPhase('waiting');
@@ -82,12 +86,18 @@ export default function Home() {
       handleServerMsg(msg);
     };
 
-    ws.onclose = () => {
-      if (gameRef.current.winner === null) {
+    ws.onerror = (e) => {
+      console.error('[WS] Error:', e);
+      setConnError('Connection failed. Check console for details.');
+    };
+
+    ws.onclose = (e) => {
+      console.log('[WS] Closed:', e.code, e.reason);
+      if (gameRef.current.winner === null && phase !== 'menu') {
         setPhase('menu');
       }
     };
-  }, []);
+  }, [phase]);
 
   const handleServerMsg = useCallback((msg: ServerMsg) => {
     const g = gameRef.current;
@@ -495,6 +505,9 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center h-full gap-8">
           <h1 className="text-4xl font-bold tracking-widest">BLACKOUT</h1>
           <p className="text-sm text-neutral-500">1v1 Dark Maze Shooter</p>
+          {connError && (
+            <p className="text-xs text-red-500 max-w-xs text-center">{connError}</p>
+          )}
           <div className="flex flex-col gap-4 w-64">
             <button
               onClick={handleCreate}
